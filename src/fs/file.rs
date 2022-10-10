@@ -4,8 +4,8 @@ use std::io;
 use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use libc::{dev_t, major, minor};
 
+use libc::{major, minor};
 use log::*;
 
 use crate::fs::dir::Dir;
@@ -323,8 +323,8 @@ impl<'dir> File<'dir> {
             let device_ids = self.metadata.rdev();
 
             f::Size::DeviceIDs(f::DeviceIDs {
-                major: unsafe{major(device_ids as dev_t)},
-                minor: unsafe{minor(device_ids as dev_t)},
+                major: unsafe { major(device_ids) },
+                minor: unsafe { minor(device_ids) },
             })
         }
         else {
