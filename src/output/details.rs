@@ -72,6 +72,7 @@ use crate::fs::{Dir, File};
 use crate::fs::dir_action::RecurseOptions;
 use crate::fs::feature::git::GitCache;
 use crate::fs::feature::xattr::{Attribute, FileAttributes};
+use crate::fs::feature::acl::get_mask_acl;
 use crate::fs::filter::FileFilter;
 use crate::output::cell::TextCell;
 use crate::output::file_name::Options as FileStyle;
@@ -93,7 +94,6 @@ use crate::theme::Theme;
 /// columns for each row.
 #[derive(PartialEq, Debug)]
 pub struct Options {
-
     /// Options specific to drawing a table.
     ///
     /// Directories themselves can pick which columns are *added* to this
@@ -132,10 +132,10 @@ pub struct Render<'a> {
 
 struct Egg<'a> {
     table_row: Option<TableRow>,
-    xattrs:    Vec<Attribute>,
-    errors:    Vec<(io::Error, Option<PathBuf>)>,
-    dir:       Option<Dir>,
-    file:      &'a File<'a>,
+    xattrs: Vec<Attribute>,
+    errors: Vec<(io::Error, Option<PathBuf>)>,
+    dir: Option<Dir>,
+    file: &'a File<'a>,
 }
 
 impl<'a> AsRef<File<'a>> for Egg<'a> {
@@ -156,9 +156,9 @@ impl<'a> Render<'a> {
 
         if let Some(ref table) = self.opts.table {
             match (self.git, self.dir) {
-                (Some(g), Some(d))  => if ! g.has_anything_for(&d.path) { self.git = None },
-                (Some(g), None)     => if ! self.files.iter().any(|f| g.has_anything_for(&f.path)) { self.git = None },
-                (None,    _)        => {/* Keep Git how it is */},
+                (Some(g), Some(d)) => if !g.has_anything_for(&d.path) { self.git = None },
+                (Some(g), None) => if !self.files.iter().any(|f| g.has_anything_for(&f.path)) { self.git = None },
+                (None, _) => { /* Keep Git how it is */ }
             }
 
             let mut table = Table::new(table, self.git, &self.theme);
@@ -177,8 +177,7 @@ impl<'a> Render<'a> {
             for row in self.iterate_with_table(table.unwrap(), rows) {
                 writeln!(w, "{}", row.strings())?
             }
-        }
-        else {
+        } else {
             self.add_files_to_table(&mut pool, &mut None, &mut rows, &self.files, TreeDepth::root());
 
             for row in self.iterate(rows) {
@@ -239,8 +238,7 @@ impl<'a> Render<'a> {
                             Err(e) => {
                                 if self.opts.xattr {
                                     errors.push((e, None));
-                                }
-                                else {
+                                } else {
                                     error!("Error looking up xattr for {:?}: {:#?}", file.path, e);
                                 }
                             }
@@ -248,15 +246,15 @@ impl<'a> Render<'a> {
                     }
 
                     let table_row = table.as_ref()
-                                         .map(|t| t.row_for_file(file, ! xattrs.is_empty()));
+                        .map(|t| t.row_for_file(file, !xattrs.is_empty(), get_mask_acl(file.path.as_path()).is_some()));
 
-                    if ! self.opts.xattr {
+                    if !self.opts.xattr {
                         xattrs.clear();
                     }
 
                     let mut dir = None;
                     if let Some(r) = self.recurse {
-                        if file.is_directory() && r.tree && ! r.is_too_deep(depth.0) {
+                        if file.is_directory() && r.tree && !r.is_too_deep(depth.0) {
                             match file.to_dir() {
                                 Ok(d) => {
                                     dir = Some(d);
@@ -287,14 +285,14 @@ impl<'a> Render<'a> {
             }
 
             let file_name = self.file_style.for_file(egg.file, self.theme)
-                                .with_link_paths()
-                                .paint()
-                                .promote();
+                .with_link_paths()
+                .paint()
+                .promote();
 
             let row = Row {
-                tree:   tree_params,
-                cells:  egg.table_row,
-                name:   file_name,
+                tree: tree_params,
+                cells: egg.table_row,
+                name: file_name,
             };
 
             rows.push(row);
@@ -313,7 +311,7 @@ impl<'a> Render<'a> {
 
                 self.filter.filter_child_files(&mut files);
 
-                if ! files.is_empty() {
+                if !files.is_empty() {
                     for xattr in egg.xattrs {
                         rows.push(self.render_xattr(&xattr, TreeParams::new(depth.deeper(), false)));
                     }
@@ -345,9 +343,9 @@ impl<'a> Render<'a> {
 
     pub fn render_header(&self, header: TableRow) -> Row {
         Row {
-            tree:     TreeParams::new(TreeDepth::root(), false),
-            cells:    Some(header),
-            name:     TextCell::paint_str(self.theme.ui.header, "Name"),
+            tree: TreeParams::new(TreeDepth::root(), false),
+            cells: Some(header),
+            name: TextCell::paint_str(self.theme.ui.header, "Name"),
         }
     }
 
@@ -396,7 +394,6 @@ impl<'a> Render<'a> {
 
 
 pub struct Row {
-
     /// Vector of cells to display.
     ///
     /// Most of the rows will be used to display files’ metadata, so this will
@@ -419,8 +416,8 @@ pub struct TableIter<'a> {
     table: Table<'a>,
 
     total_width: usize,
-    tree_style:  Style,
-    tree_trunk:  TreeTrunk,
+    tree_style: Style,
+    tree_trunk: TreeTrunk,
 }
 
 impl<'a> Iterator for TableIter<'a> {
@@ -431,8 +428,7 @@ impl<'a> Iterator for TableIter<'a> {
             let mut cell =
                 if let Some(cells) = row.cells {
                     self.table.render(cells)
-                }
-                else {
+                } else {
                     let mut cell = TextCell::default();
                     cell.add_spaces(self.total_width);
                     cell
@@ -444,7 +440,7 @@ impl<'a> Iterator for TableIter<'a> {
 
             // If any tree characters have been printed, then add an extra
             // space, which makes the output look much better.
-            if ! row.tree.is_at_root() {
+            if !row.tree.is_at_root() {
                 cell.add_spaces(1);
             }
 
@@ -474,7 +470,7 @@ impl Iterator for Iter {
 
             // If any tree characters have been printed, then add an extra
             // space, which makes the output look much better.
-            if ! row.tree.is_at_root() {
+            if !row.tree.is_at_root() {
                 cell.add_spaces(1);
             }
 

@@ -1,5 +1,7 @@
 pub mod xattr;
 
+pub mod acl;
+
 #[cfg(feature = "git")]
 pub mod git;
 

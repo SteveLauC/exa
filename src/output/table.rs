@@ -373,9 +373,9 @@ impl<'a, 'f> Table<'a> {
         Row { cells }
     }
 
-    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool) -> Row {
+    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool, acl: bool) -> Row {
         let cells = self.columns.iter()
-                        .map(|c| self.display(file, *c, xattrs))
+                        .map(|c| self.display(file, *c, xattrs, acl))
                         .collect();
 
         Row { cells }
@@ -385,11 +385,12 @@ impl<'a, 'f> Table<'a> {
         self.widths.add_widths(row)
     }
 
-    fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> f::PermissionsPlus {
+    fn permissions_plus(&self, file: &File<'_>, xattrs: bool, acl: bool) -> f::PermissionsPlus {
         f::PermissionsPlus {
             file_type: file.type_char(),
             permissions: file.permissions(),
             xattrs,
+            acl,
         }
     }
 
@@ -399,10 +400,10 @@ impl<'a, 'f> Table<'a> {
         }
     }
 
-    fn display(&self, file: &File<'_>, column: Column, xattrs: bool) -> TextCell {
+    fn display(&self, file: &File<'_>, column: Column, xattrs: bool, acl: bool) -> TextCell {
         match column {
             Column::Permissions => {
-                self.permissions_plus(file, xattrs).render(self.theme)
+                self.permissions_plus(file, xattrs, acl).render(self.theme)
             }
             Column::FileSize => {
                 file.size().render(self.theme, self.size_format, &self.env.numeric)

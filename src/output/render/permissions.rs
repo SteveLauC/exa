@@ -10,8 +10,10 @@ impl f::PermissionsPlus {
         let mut chars = vec![ self.file_type.render(colours) ];
         chars.extend(self.permissions.render(colours, self.file_type.is_regular_file()));
 
-        if self.xattrs {
-           chars.push(colours.attribute().paint("@"));
+        if self.acl {
+            chars.push(colours.attribute().paint("+"));
+        }else if self.xattrs {
+            chars.push(colours.attribute().paint("@"));
         }
 
         // As these are all ASCII characters, we can guarantee that they’re
