@@ -19,6 +19,11 @@ pub fn file_has_extended_access_acl<P: AsRef<Path>>(path: P) -> bool {
 }
 
 pub fn has_acl<P: AsRef<Path>>(path: P) -> bool {
-    symlink_metadata(path.as_ref()).unwrap().is_dir() && dir_has_default_acl(path.as_ref())
-        || file_has_extended_access_acl(path.as_ref())
+    let metadata = symlink_metadata(path.as_ref()).unwrap();
+    if metadata.is_symlink() {
+        return false;
+    } else {
+        symlink_metadata(path.as_ref()).unwrap().is_dir() && dir_has_default_acl(path.as_ref())
+            || file_has_extended_access_acl(path.as_ref())
+    }
 }
