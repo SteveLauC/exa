@@ -8,7 +8,7 @@ use term_grid as grid;
 use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
 use crate::fs::feature::xattr::FileAttributes;
-use crate::fs::feature::acl::get_mask_acl;
+use crate::fs::feature::acl::has_acl;
 use crate::fs::filter::FileFilter;
 use crate::output::cell::TextCell;
 use crate::output::details::{Options as DetailsOptions, Row as DetailsRow, Render as DetailsRender};
@@ -302,6 +302,7 @@ fn file_has_xattrs(file: &File<'_>) -> bool {
     }
 }
 
+#[inline]
 fn file_has_extended_acl(file: &File<'_>) -> bool {
-    get_mask_acl(file.path.as_path()).is_some()
+    has_acl(file.path.as_path())
 }
