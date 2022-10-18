@@ -2,11 +2,10 @@ use std::io::{self, Write};
 
 use term_grid as tg;
 
-use crate::fs::File;
 use crate::fs::filter::FileFilter;
+use crate::fs::File;
 use crate::output::file_name::Options as FileStyle;
 use crate::theme::Theme;
-
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Options {
@@ -15,11 +14,13 @@ pub struct Options {
 
 impl Options {
     pub fn direction(self) -> tg::Direction {
-        if self.across { tg::Direction::LeftToRight }
-                  else { tg::Direction::TopToBottom }
+        if self.across {
+            tg::Direction::LeftToRight
+        } else {
+            tg::Direction::TopToBottom
+        }
     }
 }
-
 
 pub struct Render<'a> {
     pub files: Vec<File<'a>>,
@@ -33,8 +34,8 @@ pub struct Render<'a> {
 impl<'a> Render<'a> {
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         let mut grid = tg::Grid::new(tg::GridOptions {
-            direction:  self.opts.direction(),
-            filling:    tg::Filling::Spaces(2),
+            direction: self.opts.direction(),
+            filling: tg::Filling::Spaces(2),
         });
 
         grid.reserve(self.files.len());
@@ -44,16 +45,15 @@ impl<'a> Render<'a> {
             let filename = self.file_style.for_file(file, self.theme).paint();
 
             grid.add(tg::Cell {
-                contents:  filename.strings().to_string(),
-                width:     *filename.width(),
+                contents: filename.strings().to_string(),
+                width: *filename.width(),
                 alignment: tg::Alignment::Left,
             });
         }
 
         if let Some(display) = grid.fit_into_width(self.console_width) {
             write!(w, "{}", display)
-        }
-        else {
+        } else {
             // File names too long for a grid - drop down to just listing them!
             // This isn’t *quite* the same as the lines view, which also
             // displays full link paths.

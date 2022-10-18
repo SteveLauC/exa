@@ -4,7 +4,6 @@ use crate::fs::feature::xattr;
 use crate::options::flags;
 use crate::options::parser::MatchedFlags;
 
-
 static USAGE_PART1: &str = "Usage:
   exa [options] [files...]
 
@@ -35,7 +34,7 @@ FILTERING AND SORTING OPTIONS
   -D, --only-dirs            list only directories
   -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore";
 
-  static USAGE_PART2: &str = "  \
+static USAGE_PART2: &str = "  \
   Valid sort fields:         name, Name, extension, Extension, size, type,
                              modified, accessed, created, inode, and none.
                              date, time, old, and new all refer to modified.
@@ -61,10 +60,12 @@ LONG VIEW OPTIONS
   --no-user            suppress the user field
   --no-time            suppress the time field";
 
-static GIT_FILTER_HELP: &str = "  --git-ignore               ignore files mentioned in '.gitignore'";
-static GIT_VIEW_HELP:   &str = "  --git                list each file's Git status, if tracked or ignored";
-static EXTENDED_HELP:   &str = "  -@, --extended       list each file's extended attributes and sizes";
-
+static GIT_FILTER_HELP: &str =
+    "  --git-ignore               ignore files mentioned in '.gitignore'";
+static GIT_VIEW_HELP: &str =
+    "  --git                list each file's Git status, if tracked or ignored";
+static EXTENDED_HELP: &str =
+    "  -@, --extended       list each file's extended attributes and sizes";
 
 /// All the information needed to display the help text, which depends
 /// on which features are enabled and whether the user only wants to
@@ -73,7 +74,6 @@ static EXTENDED_HELP:   &str = "  -@, --extended       list each file's extended
 pub struct HelpString;
 
 impl HelpString {
-
     /// Determines how to show help, if at all, based on the user’s
     /// command-line arguments. This one works backwards from the other
     /// ‘deduce’ functions, returning Err if help needs to be shown.
@@ -84,15 +84,13 @@ impl HelpString {
     pub fn deduce(matches: &MatchedFlags<'_>) -> Option<Self> {
         if matches.count(&flags::HELP) > 0 {
             Some(Self)
-        }
-        else {
+        } else {
             None
         }
     }
 }
 
 impl fmt::Display for HelpString {
-
     /// Format this help options into an actual string of help
     /// text to be displayed to the user.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
@@ -116,7 +114,6 @@ impl fmt::Display for HelpString {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use crate::options::{Options, OptionsResult};
@@ -124,14 +121,14 @@ mod test {
 
     #[test]
     fn help() {
-        let args = vec![ OsStr::new("--help") ];
+        let args = vec![OsStr::new("--help")];
         let opts = Options::parse(args, &None);
         assert!(matches!(opts, OptionsResult::Help(_)));
     }
 
     #[test]
     fn help_with_file() {
-        let args = vec![ OsStr::new("--help"), OsStr::new("me") ];
+        let args = vec![OsStr::new("--help"), OsStr::new("me")];
         let opts = Options::parse(args, &None);
         assert!(matches!(opts, OptionsResult::Help(_)));
     }
@@ -140,6 +137,6 @@ mod test {
     fn unhelpful() {
         let args = vec![];
         let opts = Options::parse(args, &None);
-        assert!(! matches!(opts, OptionsResult::Help(_)))  // no help when --help isn’t passed
+        assert!(!matches!(opts, OptionsResult::Help(_))) // no help when --help isn’t passed
     }
 }

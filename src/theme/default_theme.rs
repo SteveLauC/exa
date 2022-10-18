@@ -1,9 +1,8 @@
-use ansi_term::Style;
 use ansi_term::Colour::*;
+use ansi_term::Style;
 
-use crate::theme::ColourScale;
 use crate::theme::ui_styles::*;
-
+use crate::theme::ColourScale;
 
 impl UiStyles {
     pub fn default_theme(scale: ColourScale) -> Self {
@@ -11,89 +10,88 @@ impl UiStyles {
             colourful: true,
 
             filekinds: FileKinds {
-                normal:       Style::default(),
-                directory:    Blue.bold(),
-                symlink:      Cyan.normal(),
-                pipe:         Yellow.normal(),
+                normal: Style::default(),
+                directory: Blue.bold(),
+                symlink: Cyan.normal(),
+                pipe: Yellow.normal(),
                 block_device: Yellow.bold(),
-                char_device:  Yellow.bold(),
-                socket:       Red.bold(),
-                special:      Yellow.normal(),
-                executable:   Green.bold(),
+                char_device: Yellow.bold(),
+                socket: Red.bold(),
+                special: Yellow.normal(),
+                executable: Green.bold(),
             },
 
             perms: Permissions {
-                user_read:           Yellow.bold(),
-                user_write:          Red.bold(),
-                user_execute_file:   Green.bold().underline(),
-                user_execute_other:  Green.bold(),
+                user_read: Yellow.bold(),
+                user_write: Red.bold(),
+                user_execute_file: Green.bold().underline(),
+                user_execute_other: Green.bold(),
 
-                group_read:          Yellow.normal(),
-                group_write:         Red.normal(),
-                group_execute:       Green.normal(),
+                group_read: Yellow.normal(),
+                group_write: Red.normal(),
+                group_execute: Green.normal(),
 
-                other_read:          Yellow.normal(),
-                other_write:         Red.normal(),
-                other_execute:       Green.normal(),
+                other_read: Yellow.normal(),
+                other_write: Red.normal(),
+                other_execute: Green.normal(),
 
-                special_user_file:   Purple.normal(),
-                special_other:       Purple.normal(),
+                special_user_file: Purple.normal(),
+                special_other: Purple.normal(),
 
-                attribute:           Style::default(),
+                attribute: Style::default(),
             },
 
             size: Size::colourful(scale),
 
             users: Users {
-                user_you:           Yellow.bold(),
-                user_someone_else:  Style::default(),
-                group_yours:        Yellow.bold(),
-                group_not_yours:    Style::default(),
+                user_you: Yellow.bold(),
+                user_someone_else: Style::default(),
+                group_yours: Yellow.bold(),
+                group_not_yours: Style::default(),
             },
 
             links: Links {
-                normal:          Red.bold(),
+                normal: Red.bold(),
                 multi_link_file: Red.on(Yellow),
             },
 
             git: Git {
-                new:         Green.normal(),
-                modified:    Blue.normal(),
-                deleted:     Red.normal(),
-                renamed:     Yellow.normal(),
-                typechange:  Purple.normal(),
-                ignored:     Style::default().dimmed(),
-                conflicted:  Red.normal(),
+                new: Green.normal(),
+                modified: Blue.normal(),
+                deleted: Red.normal(),
+                renamed: Yellow.normal(),
+                typechange: Purple.normal(),
+                ignored: Style::default().dimmed(),
+                conflicted: Red.normal(),
             },
 
-            punctuation:  Fixed(244).normal(),
-            date:         Blue.normal(),
-            inode:        Purple.normal(),
-            blocks:       Cyan.normal(),
-            octal:        Purple.normal(),
-            header:       Style::default().underline(),
+            punctuation: Fixed(244).normal(),
+            date: Blue.normal(),
+            inode: Purple.normal(),
+            blocks: Cyan.normal(),
+            octal: Purple.normal(),
+            header: Style::default().underline(),
 
-            symlink_path:         Cyan.normal(),
-            control_char:         Red.normal(),
-            broken_symlink:       Red.normal(),
-            broken_path_overlay:  Style::default().underline(),
+            symlink_path: Cyan.normal(),
+            control_char: Red.normal(),
+            broken_symlink: Red.normal(),
+            broken_path_overlay: Style::default().underline(),
         }
     }
 }
 
-
 impl Size {
     pub fn colourful(scale: ColourScale) -> Self {
         match scale {
-            ColourScale::Gradient  => Self::colourful_gradient(),
-            ColourScale::Fixed     => Self::colourful_fixed(),
+            ColourScale::Gradient => Self::colourful_gradient(),
+            ColourScale::Fixed => Self::colourful_fixed(),
         }
     }
 
     fn colourful_fixed() -> Self {
         Self {
-            major:  Green.bold(),
-            minor:  Green.normal(),
+            major: Green.bold(),
+            minor: Green.normal(),
 
             number_byte: Green.bold(),
             number_kilo: Green.bold(),
@@ -111,8 +109,8 @@ impl Size {
 
     fn colourful_gradient() -> Self {
         Self {
-            major:  Green.bold(),
-            minor:  Green.normal(),
+            major: Green.bold(),
+            minor: Green.normal(),
 
             number_byte: Fixed(118).normal(),
             number_kilo: Fixed(190).normal(),

@@ -270,11 +270,7 @@ impl<'a> Render<'a> {
                     }
 
                     let table_row = table.as_ref().map(|t| {
-                        t.row_for_file(
-                            file,
-                            !xattrs.is_empty(),
-                            has_acl(file.path.as_path()),
-                        )
+                        t.row_for_file(file, !xattrs.is_empty(), has_acl(file.path.as_path()))
                     });
 
                     if !self.opts.xattr {

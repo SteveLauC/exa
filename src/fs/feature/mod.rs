@@ -12,12 +12,12 @@ pub mod git {
 
     use crate::fs::fields as f;
 
-
     pub struct GitCache;
 
     impl FromIterator<PathBuf> for GitCache {
         fn from_iter<I>(_iter: I) -> Self
-        where I: IntoIterator<Item=PathBuf>
+        where
+            I: IntoIterator<Item = PathBuf>,
         {
             Self
         }

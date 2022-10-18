@@ -1,4 +1,4 @@
-pub use self::cell::{TextCell, TextCellContents, DisplayWidth};
+pub use self::cell::{DisplayWidth, TextCell, TextCellContents};
 pub use self::escape::escape;
 
 pub mod details;
@@ -15,7 +15,6 @@ mod cell;
 mod escape;
 mod tree;
 
-
 /// The **view** contains all information about how to format output.
 #[derive(Debug)]
 pub struct View {
@@ -23,7 +22,6 @@ pub struct View {
     pub width: TerminalWidth,
     pub file_style: file_name::Options,
 }
-
 
 /// The **mode** is the “type” of output.
 #[derive(PartialEq, Debug)]
@@ -35,11 +33,9 @@ pub enum Mode {
     Lines,
 }
 
-
 /// The width of the terminal requested by the user.
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum TerminalWidth {
-
     /// The user requested this specific number of columns.
     Set(usize),
 
@@ -54,8 +50,8 @@ impl TerminalWidth {
         // where the output goes.
 
         match self {
-            Self::Set(width)  => Some(width),
-            Self::Automatic   => terminal_size::terminal_size().map(|(w, _)| w.0.into()),
+            Self::Set(width) => Some(width),
+            Self::Automatic => terminal_size::terminal_size().map(|(w, _)| w.0.into()),
         }
     }
 }
