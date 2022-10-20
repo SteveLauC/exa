@@ -7,23 +7,29 @@ use posix_acl::{
 use std::{fs::symlink_metadata, path::Path};
 
 pub fn dir_has_default_acl<P: AsRef<Path>>(path: P) -> bool {
-    let acl = PosixACL::read_default_acl(path.as_ref()).unwrap();
-    acl.get(UserObj).is_some() || acl.get(GroupObj).is_some() || acl.get(Other).is_some()
+    if let Ok(acl) = PosixACL::read_default_acl(path.as_ref()) {
+        return acl.get(UserObj).is_some() || acl.get(GroupObj).is_some() || acl.get(Other).is_some();
+    }
+
+    // This fs may does not support ACL
+    false
 }
 
 pub fn file_has_extended_access_acl<P: AsRef<Path>>(path: P) -> bool {
-    PosixACL::read_acl(path.as_ref())
-        .unwrap()
-        .get(Mask)
-        .is_some()
+    if let Ok(acl) = PosixACL::read_acl(path.as_ref()) {
+        return acl.get(Mask).is_some();
+    }
+    // This fs may does not support ACL
+    false
 }
 
 pub fn has_acl<P: AsRef<Path>>(path: P) -> bool {
     let metadata = symlink_metadata(path.as_ref()).unwrap();
     if metadata.is_symlink() {
-        return false;
-    } else {
-        symlink_metadata(path.as_ref()).unwrap().is_dir() && dir_has_default_acl(path.as_ref())
-            || file_has_extended_access_acl(path.as_ref())
+        false
+    } else if metadata.is_dir() {
+        dir_has_default_acl(path.as_ref())
+    } else{
+        file_has_extended_access_acl(path.as_ref())
     }
 }
